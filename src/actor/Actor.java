@@ -71,7 +71,13 @@ public class Actor {
     }
 
     public int getNumAwards() {
-        return awards.size();
+        int numAwards = 0;
+        for (Map.Entry<ActorsAwards, Integer> entry : awards.entrySet()) {
+            Integer num = entry.getValue();
+            numAwards += num;
+        }
+
+        return numAwards;
     }
 
     public double getAverageRating(final VideosDatabase videosDatabase) {
@@ -97,7 +103,7 @@ public class Actor {
         for (String awardName : awardsList) {
             ActorsAwards award = Utils.stringToAwards(awardName);
 
-            if (!(this.getAwards().containsKey(award))) {
+            if (!(awards.containsKey(award))) {
                 return false;
             }
         }

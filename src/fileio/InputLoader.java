@@ -1,6 +1,9 @@
 package fileio;
 
 import common.Constants;
+import database.ActorsDatabase;
+import database.UsersDatabase;
+import database.VideosDatabase;
 import entertainment.Season;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
