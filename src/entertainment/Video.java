@@ -2,7 +2,7 @@ package entertainment;
 
 import java.util.ArrayList;
 
-public class Video {
+public abstract class Video {
     /**
      * Video's title
      */
@@ -22,9 +22,9 @@ public class Video {
     /**
      * Duration if a video
      */
-    int duration = 0;
+    protected int duration = 0;
     /**
-     * Number of times the video is in lists with favorite videos
+     * Number of occurrences in users' lists with favorite videos
      */
     private int numFavorite = 0;
     /**
@@ -34,7 +34,7 @@ public class Video {
     /**
      * Rating of a video
      */
-    double rating = 0;
+    protected double rating = 0;
 
     /**
      * Constructor with parameters
@@ -48,57 +48,100 @@ public class Video {
         this.genres = genres;
     }
 
+    /**
+     * @return title
+     */
     public String getTitle() {
         return title;
     }
 
+    /**
+     * @return year
+     */
     public int getYear() {
         return year;
     }
 
+    /**
+     * @return cast
+     */
     public ArrayList<String> getCast() {
         return cast;
     }
 
+    /**
+     * @return genres
+     */
     public ArrayList<String> getGenres() {
         return genres;
     }
 
+    /**
+     * @return value of numFavorites
+     */
     public int getNumFavorite() {
         return numFavorite;
     }
 
+    /**
+     * @return number of views
+     */
     public int getNumViews() {
         return numViews;
     }
 
+    /**
+     * @return rating
+     */
     public double getRating() {
         return rating;
     }
 
+    /**
+     * @return duration
+     */
     public int getDuration() {
         return duration;
     }
 
+    /**
+     * increments number of occurrences in users' lists with favorite videos
+     */
     public void addFavorite() {
         numFavorite++;
     }
 
+    /**
+     * incremets number of views
+     */
     public void addView() {
         numViews++;
     }
 
-    public void addViews(int numViews) {
+    /**
+     * adds views to a video
+     * @param numViews
+     */
+    public void addViews(final int numViews) {
         this.numViews += numViews;
     }
 
-    public void addRating(double rating, int season) {
-    }
+    /**
+     * adds new rating and computes the new average rating
+     * @param rating
+     * @param season
+     */
+    public abstract void addRating(double rating, int season);
 
-    public String getVideoType() {
-        return null;
-    }
+    /**
+     * @return video type
+     */
+    public abstract String getVideoType();
 
+
+    /**
+     * overrides toString method
+     */
     @Override
     public String toString() {
         return title;

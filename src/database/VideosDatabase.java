@@ -1,6 +1,10 @@
 package database;
 
+import entertainment.Movie;
+import entertainment.Serial;
 import entertainment.Video;
+import fileio.MovieInputData;
+import fileio.SerialInputData;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -9,171 +13,271 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class VideosDatabase {
-	private static VideosDatabase instance = null;
-	private Map<String, Video> videos;
-	private List<String> videoTitles;
+public final class VideosDatabase {
+    /**
+     * the single instance of this class
+     */
+    private static VideosDatabase instance = null;
+    /**
+     * map with videos
+     */
+    private Map<String, Video> videos;
+    /**
+     * list with video titles
+     */
+    private List<String> videoTitles;
 
-	private VideosDatabase() {
-		videos = new HashMap<>();
-		videoTitles = new ArrayList<>();
-	}
+    private VideosDatabase() {
+        videos = new HashMap<>();
+        videoTitles = new ArrayList<>();
+    }
 
-	public static VideosDatabase getInstance() {
-		if (instance == null) {
-			instance = new VideosDatabase();
-		}
+    /**
+     * @return instance
+     */
+    public static VideosDatabase getInstance() {
+        if (instance == null) {
+            instance = new VideosDatabase();
+        }
 
-		return instance;
-	}
+        return instance;
+    }
 
-	public Map<String, Video> getVideos() {
-		return videos;
-	}
+    public Map<String, Video> getVideos() {
+        return videos;
+    }
 
-	public List<String> getVideoTitles() {
-		return videoTitles;
-	}
+    public List<String> getVideoTitles() {
+        return videoTitles;
+    }
 
-	public void addVideo(String title, Video video) {
-		videos.put(title, video);
-		videoTitles.add(title);
-	}
+    /**
+     * adds video to database
+     * @param title
+     * @param video
+     */
+    public void addVideo(final String title, final Video video) {
+        videos.put(title, video);
+        videoTitles.add(title);
+    }
 
-	public void addFavorite(String title) {
-		Video video = videos.get(title);
-		video.addFavorite();
-	}
+    /**
+     * populates the database with the movies and serials given as input
+     * @param movies
+     * @param serials
+     */
+    public void populateDatabase(final List<MovieInputData> movies,
+                                 final List<SerialInputData> serials) {
+        // add movies
+        for (MovieInputData movieInputData : movies) {
+            Movie newMovie = new Movie(movieInputData.getTitle(), movieInputData.getYear(),
+                    movieInputData.getCast(), movieInputData.getGenres(),
+                    movieInputData.getDuration());
+            this.addVideo(newMovie.getTitle(),  newMovie);
+        }
 
-	public void addView(String title) {
-		Video video = videos.get(title);
-		video.addView();
-	}
+        // add serials
+        for (SerialInputData serialInputData : serials) {
+            Serial newSerial = new Serial(serialInputData.getTitle(),
+                    serialInputData.getYear(), serialInputData.getCast(),
+                    serialInputData.getGenres(),
+                    serialInputData.getNumberSeason(),
+                    serialInputData.getSeasons());
+            this.addVideo(newSerial.getTitle(), newSerial);
+        }
+    }
 
-	public void addRating(String title, double rating, int season) {
-		Video video = videos.get(title);
-		video.addRating(rating, season);
-	}
+    /**
+     * updates the number of occurrences in users' favorite list of a video
+     * @param title
+     */
+    public void addFavorite(final String title) {
+        Video video = videos.get(title);
+        video.addFavorite();
+    }
 
-	public double getRatingOfVideo(String videoTitle) {
-		if (videos.get(videoTitle) == null) {
-			return -1;
-		}
-		return videos.get(videoTitle).getRating();
-	}
+    /**
+     * updates the number views of a video
+     * @param title
+     */
+    public void addView(final String title) {
+        Video video = videos.get(title);
+        video.addView();
+    }
 
-	public List<Video> applyFilters(final String year, final String genre,
-									final String videoType) {
-		List<Video> filteredVideos = new ArrayList<>();
+    /**
+     * updates the rating of a video
+     * @param title
+     * @param rating
+     * @param season
+     */
+    public void addRating(final String title, final double rating, final int season) {
+        Video video = videos.get(title);
+        video.addRating(rating, season);
+    }
 
-		for (Map.Entry<String, Video> entry : videos.entrySet()) {
-			Video video = entry.getValue();
+    /**
+     * @param videoTitle
+     * @return rating
+     */
+    public double getRatingOfVideo(final String videoTitle) {
+        if (videos.get(videoTitle) == null) {
+            return -1;
+        }
+        return videos.get(videoTitle).getRating();
+    }
 
-			if (!(videoType.equals(video.getVideoType()))) {
-				continue;
-			}
+    /**
+     * @param year
+     * @param genre
+     * @param videoType
+     * @return list of videos that have the given year, genre and videoType
+     */
+    public List<Video> applyFilters(final String year, final String genre,
+                                    final String videoType) {
+        List<Video> filteredVideos = new ArrayList<>();
 
-			if (year != null && !(String.valueOf(video.getYear()).equals(year))) {
-				continue;
-			}
+        for (Map.Entry<String, Video> entry : videos.entrySet()) {
+            Video video = entry.getValue();
 
-			if (genre != null && !(video.getGenres().contains(genre))) {
-				continue;
-			}
+            if (!(videoType.equals(video.getVideoType()))) {
+                continue;
+            }
 
-			filteredVideos.add(video);
-		}
+            if (year != null && !(String.valueOf(video.getYear()).equals(year))) {
+                continue;
+            }
 
-		return filteredVideos;
-	}
+            if (genre != null && !(video.getGenres().contains(genre))) {
+                continue;
+            }
 
-	public List<Video> getVideosSortByRating(final int numVideos,
-											 final String sortType, final String year,
-											 final String genre, final String videoType) {
-		List<Video> filteredVideos = this.applyFilters(year, genre, videoType);
+            filteredVideos.add(video);
+        }
 
-		filteredVideos = filteredVideos.stream().filter(video -> video.getRating() > 0)
-				.toList();
+        return filteredVideos;
+    }
 
-		Comparator<Video> videoRatingComp = Comparator
-				.comparing(Video::getRating)
-				.thenComparing(Video::getTitle);
+    /**
+     * returns a list with videos sorted by average rating
+     * @param numVideos
+     * @param sortType
+     * @param year
+     * @param genre
+     * @param videoType
+     * @return list of videos
+     */
+    public List<Video> getVideosSortByRating(final int numVideos,
+                                             final String sortType, final String year,
+                                             final String genre, final String videoType) {
+        List<Video> filteredVideos = this.applyFilters(year, genre, videoType);
 
-		if (sortType.equals("desc")) {
-			videoRatingComp = videoRatingComp.reversed();
-		}
+        Comparator<Video> videoRatingComp = Comparator
+                .comparing(Video::getRating)
+                .thenComparing(Video::getTitle);
 
-		return filteredVideos.stream()
-				.sorted(videoRatingComp)
-				.limit(numVideos)
-				.collect(Collectors.toList());
-	}
+        if (sortType.equals("desc")) {
+            videoRatingComp = videoRatingComp.reversed();
+        }
 
-	public List<Video> getVideosSortedByNumFavorite(final int numVideos,
-													final String sortType, final String year,
-													final String genre, final String videoType) {
-		List<Video> filteredVideos = this.applyFilters(year, genre, videoType);
+        return filteredVideos.stream()
+                .filter(video -> video.getRating() > 0)
+                .sorted(videoRatingComp)
+                .limit(numVideos)
+                .collect(Collectors.toList());
+    }
 
-		filteredVideos = filteredVideos.stream().filter(video -> video.getNumFavorite() > 0)
-				.toList();
+    /**
+     * returns a list with videos sorted by the number of occurrences in users' favorite list
+     * @param numVideos
+     * @param sortType
+     * @param year
+     * @param genre
+     * @param videoType
+     * @return list of videos
+     */
+    public List<Video> getVideosSortedByNumFavorite(final int numVideos,
+                                                    final String sortType, final String year,
+                                                    final String genre, final String videoType) {
+        List<Video> filteredVideos = this.applyFilters(year, genre, videoType);
 
-		Comparator<Video> videoFavoriteComp = Comparator
-				.comparing(Video::getNumFavorite)
-				.thenComparing(Video::getTitle);
+        Comparator<Video> videoFavoriteComp = Comparator
+                .comparing(Video::getNumFavorite)
+                .thenComparing(Video::getTitle);
 
-		if (sortType.equals("desc")) {
-			videoFavoriteComp = videoFavoriteComp.reversed();
-		}
+        if (sortType.equals("desc")) {
+            videoFavoriteComp = videoFavoriteComp.reversed();
+        }
 
-		return filteredVideos.stream()
-				.sorted(videoFavoriteComp)
-				.limit(numVideos)
-				.collect(Collectors.toList());
-	}
+        return filteredVideos.stream()
+                .filter(video -> video.getNumFavorite() > 0)
+                .sorted(videoFavoriteComp)
+                .limit(numVideos)
+                .collect(Collectors.toList());
+    }
 
-	public List<Video> getVideosSortedByDuration(final int numVideos,
-												 final String sortType, final String year,
-												 final String genre, final String videoType) {
-		List<Video> filteredVideos = this.applyFilters(year, genre, videoType);
+    /**
+     * returns a list with videos sorted by duration
+     * @param numVideos
+     * @param sortType
+     * @param year
+     * @param genre
+     * @param videoType
+     * @return list of videos
+     */
+    public List<Video> getVideosSortedByDuration(final int numVideos,
+                                                 final String sortType, final String year,
+                                                 final String genre, final String videoType) {
+        List<Video> filteredVideos = this.applyFilters(year, genre, videoType);
 
-		Comparator<Video> videoDurationComp = Comparator
-				.comparing(Video::getDuration)
-				.thenComparing(Video::getTitle);
+        Comparator<Video> videoDurationComp = Comparator
+                .comparing(Video::getDuration)
+                .thenComparing(Video::getTitle);
 
-		if (sortType.equals("desc")) {
-			videoDurationComp = videoDurationComp.reversed();
-		}
+        if (sortType.equals("desc")) {
+            videoDurationComp = videoDurationComp.reversed();
+        }
 
-		return filteredVideos.stream()
-				.sorted(videoDurationComp)
-				.limit(numVideos)
-				.collect(Collectors.toList());
-	}
+        return filteredVideos.stream()
+                .sorted(videoDurationComp)
+                .limit(numVideos)
+                .collect(Collectors.toList());
+    }
 
-	public List<Video> getVideosSortedByMostViewed(final int numVideos,
-												   final String sortType, final String year,
-												   final String genre, final String videoType) {
-		List<Video> filteredVideos = this.applyFilters(year, genre, videoType);
+    /**
+     * returns a list with videos sorted by number of views
+     * @param numVideos
+     * @param sortType
+     * @param year
+     * @param genre
+     * @param videoType
+     * @return list of videos
+     */
+    public List<Video> getVideosSortedByMostViewed(final int numVideos,
+                                                   final String sortType, final String year,
+                                                   final String genre, final String videoType) {
+        List<Video> filteredVideos = this.applyFilters(year, genre, videoType);
 
-		filteredVideos = filteredVideos.stream().filter(video -> video.getNumViews() > 0)
-				.toList();
+        Comparator<Video> videoMostViewedComp = Comparator
+                .comparing(Video::getNumViews)
+                .thenComparing(Video::getTitle);
 
-		Comparator<Video> videoMostViewedComp = Comparator
-				.comparing(Video::getNumViews)
-				.thenComparing(Video::getTitle);
+        if (sortType.equals("desc")) {
+            videoMostViewedComp = videoMostViewedComp.reversed();
+        }
 
-		if (sortType.equals("desc")) {
-			videoMostViewedComp = videoMostViewedComp.reversed();
-		}
+        return filteredVideos.stream()
+                .filter(video -> video.getNumViews() > 0)
+                .sorted(videoMostViewedComp)
+                .limit(numVideos)
+                .collect(Collectors.toList());
+    }
 
-		return filteredVideos.stream()
-				.sorted(videoMostViewedComp)
-				.limit(numVideos)
-				.collect(Collectors.toList());
-	}
-
-	public static void resetDatabase() {
-		VideosDatabase.getInstance().videos = new HashMap<>();
-		VideosDatabase.getInstance().videoTitles = new ArrayList<>();
-	}
+    /**
+     * empties the current map of videos and list of video titles
+     */
+    public static void resetDatabase() {
+        VideosDatabase.getInstance().videos = new HashMap<>();
+        VideosDatabase.getInstance().videoTitles = new ArrayList<>();
+    }
 }

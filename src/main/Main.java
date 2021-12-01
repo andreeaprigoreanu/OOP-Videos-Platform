@@ -9,12 +9,11 @@ import common.Constants;
 import database.ActorsDatabase;
 import database.UsersDatabase;
 import database.VideosDatabase;
-import entertainment.Movie;
-import entertainment.Serial;
-import entertainment.Video;
-import fileio.*;
+import fileio.ActionInputData;
+import fileio.Input;
+import fileio.InputLoader;
+import fileio.Writer;
 import org.json.simple.JSONArray;
-import user.User;
 
 import java.io.File;
 import java.io.IOException;
@@ -79,39 +78,17 @@ public final class Main {
         Writer fileWriter = new Writer(filePath2);
         JSONArray arrayResult = new JSONArray();
 
-        //TODO add here the entry point to your implementation
-
         // add actors to database
         ActorsDatabase actorsDatabase = ActorsDatabase.getInstance();
-        actorsDatabase.addActors(input.getActors());
+        actorsDatabase.populateDatabase(input.getActors());
 
         // add videos to database
         VideosDatabase videosDatabase = VideosDatabase.getInstance();
-        // movies
-        for (MovieInputData movieInputData : input.getMovies()) {
-            Movie newMovie = new Movie(movieInputData.getTitle(), movieInputData.getYear(),
-                    movieInputData.getCast(), movieInputData.getGenres(),
-                    movieInputData.getDuration());
-            videosDatabase.addVideo(newMovie.getTitle(),  newMovie);
-        }
-        // serials
-        for (SerialInputData serialInputData : input.getSerials()) {
-            Serial newSerial = new Serial(serialInputData.getTitle(),
-                    serialInputData.getYear(), serialInputData.getCast(),
-                    serialInputData.getGenres(),
-                    serialInputData.getNumberSeason(),
-                    serialInputData.getSeasons());
-            videosDatabase.addVideo(newSerial.getTitle(), newSerial);
-        }
+        videosDatabase.populateDatabase(input.getMovies(), input.getSerials());
 
         // add users to database
         UsersDatabase usersDatabase = UsersDatabase.getInstance();
-        for (UserInputData userInputData : input.getUsers()) {
-            User newUser = new User(userInputData.getUsername(),
-                    userInputData.getSubscriptionType(), userInputData.getHistory(),
-                    userInputData.getFavoriteMovies(),  videosDatabase);
-            usersDatabase.addUser(newUser.getUsername(),  newUser);
-        }
+        usersDatabase.populateDatabase(input.getUsers(), videosDatabase);
 
         List<ActionInputData> commandsData = input.getCommands();
         for (ActionInputData action : commandsData) {
@@ -135,6 +112,8 @@ public final class Main {
                                 action.getSeasonNumber(), usersDatabase,
                                 videosDatabase);
                         break;
+                    default:
+                        break;
                 }
             } else {
                 if (actionType.equals("query")) {
@@ -156,6 +135,8 @@ public final class Main {
                                     outputMessage = Query.ActorsQuery
                                             .sortByDescription(action.getFilters().get(2),
                                                     action.getSortType(), actorsDatabase);
+                                    break;
+                                default:
                                     break;
                             }
                             break;
@@ -203,6 +184,8 @@ public final class Main {
                                                     action.getObjectType(),
                                                     videosDatabase);
                                     break;
+                                default:
+                                    break;
                             }
                             break;
                     }
@@ -234,6 +217,8 @@ public final class Main {
                                             action.getGenre(), usersDatabase,
                                             videosDatabase);
                             break;
+                        default:
+                            break;
                     }
                 }
             }
@@ -241,6 +226,7 @@ public final class Main {
             arrayResult.add(fileWriter.writeFile(id, null, outputMessage));
         }
 
+        // reset databases
         ActorsDatabase.resetDatabase();
         UsersDatabase.resetDatabase();
         VideosDatabase.resetDatabase();

@@ -1,38 +1,66 @@
-Object Oriented Programming Course
-Homework - VideosDB
+Andreea Prigoreanu
+321CA
 
-November 2021
+# Link repo git
+    https://github.com/andreeaprigoreanu/OOP-tema1.git
 
-# Info
-https://ocw.cs.pub.ro/courses/poo-ca-cd/teme/tema
+# Clasele adaugate de mine se alfa in pachetele:
+    * action - cuprinde clasele
+        - Command
+        - Query - cu clasele interne
+            - ActorsQuery
+            - VideosQuery
+            - UsersQuery
+        - Recommendation - cu clasele interne
+            - Standard
+            - Premium
+    * actor - cuprinde clasa Actor
+    * database - cuprinde clasele de tip Singleton
+        - ActorsDatabase: contine lista de actori
+        - UsersDatabase: stocheaza toti users
+        - VideosDatabase: stocheaza toate videorile
+    * entertainment - cuprinde clasele
+        - Video (clasa abstracta)
+        - Movie (extinde Video)
+        - Serial (extinde Vide)
+        - GenresList: contine o lista cu toate genurile posibile
+    * user:
+        - User
 
-# About the code
+# Implementarile comenzilor:
+    * favorite:
+        - metoda addFavorite din clasa UsersDatabase apeleaza metoda addFavorite din clasa User,
+        care verifica daca videoul a fost vizionat si daca el exista deja in lista de favorie.
+        - daca nu, videoul este adaugat in lista de videouri favorite si se incrementeaza campul
+        numFavorites al videoului
 
-We provide the input tests, the logic that parses them and the checker that runs them.
+    * view:
+        - metoda addView din clasa UsersDatabase apeleaza metoda addView din clasa User,
+        care verifica daca videoul a fost deja vizionat.
+        - daca da, atunci se face un update la entry
+        - altfel, se adauga un entry in istoricul userului
+        - se face un update la campul numView al videoului
 
-* test_db - contains the tests in JSON format
-* src
-   * checker - the checker's sources including the checkstyle necessary files, not to be modified
-   * fileio - classes for parsing the input files, not to be modified
-   * common, utils
-        * contain utility classes with constants and static methods
-        * you can add your own functionality in the existing classes or add new classes as well
-   * actor
-        * contains an enum for the types of awards an actor can have - do not modify it
-        * you can add here your actor related classes
-   * entertainment
-        * contains an enum for the supported video genres - do not modify it
-        * class for representing a Season of a tv show - do not modify it
-        * you can add here your entertainment related classes
+    * rate:
+        - metoda addRating din clasa UsersDatabase apeleaza metoda addRating din clasa User,
+        care verifica daca videoul se gaseste in istoricul userului
+        - daca se gaseste, atunci se verifica daca userul a mai dat rating aceluiasi video si daca
+        nu, se adauga un entry in lista cu ratinguri a userului si se face un update ratingului
+        mediu al acelui video
 
-We encourage you to organize your implementation in packages based on the functionality their classes offer. Try to keep
-your code modular, readable and documented.
+# Implementarile queriurilor:
+    * Pentru fiecare query, imi creez o lista noua cu obiecte corespunzatoare tipului de query
+    * Pentru a sorta fiecare lista creez un stream pe care aplic un filtrele necesare, sortez
+    cu un comparator corespunzator si, la final, convertesc inapoi la o lista
 
-# Testing
-
-The Main class runs the checker on your implementation. Add the entry point to your implementation in it.
-
-Run Main to test your implementation from the IDE or from command line.
-
-Run the main method from Test class with the name of the input file from the command line and the result will be written
-to the out.txt file. Thus, you can compare this result with ref.
+# Implementarile recomandarilor:
+    * Am separat recomandarile in recomandari pentru useri standard si recomandari pentru useri
+    premium
+    * Pentru fiecare tip de recomandare exista o metoda corespunzatoare in clasa UsersDatabase
+    care returneaza rezultatul
+    * Metodele pastreaza in linii mari aceeasi structura, in afara de popular, care utilizeaza
+    clasa GenreList pentru a genera o lista cu toate genurile sortate dupa popularitate. Se
+    itereaza in lista cu genres sortata si in lista cu videouri pentru a gasi primul video de
+    un anumit genre care nu a fost vazut de user
+    * Pentru restul recomandarilor se creeaza un stream pe care se aplica filtre si un comparator
+    corespunzator si care, la final, se converteste in lista

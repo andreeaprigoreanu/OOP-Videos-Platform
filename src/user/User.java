@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class User {
+public final class User {
     /**
      * User's username
      */
@@ -19,18 +19,20 @@ public class User {
     /**
      * The history of the movies seen
      */
-    private Map<String, Integer> history;
+    private final Map<String, Integer> history;
     /**
      * Movies added to favorites
      */
-    private ArrayList<String> favoriteMovies;
-
+    private final ArrayList<String> favoriteMovies;
+    /**
+     * Ratings given
+     */
     private final Map<String, Double> ratings;
 
-    public User(String username, final String subscriptionType,
+    public User(final String username, final String subscriptionType,
                 final Map<String, Integer> history,
                 final ArrayList<String> favoriteMovies,
-                VideosDatabase videosDatabase) {
+                final VideosDatabase videosDatabase) {
         this.username = username;
         this.subscriptionType = subscriptionType;
         this.history = history;
@@ -47,7 +49,7 @@ public class User {
         return username;
     }
 
-    public void setUsername(String username) {
+    public void setUsername(final String username) {
         this.username = username;
     }
 
@@ -55,24 +57,12 @@ public class User {
         return subscriptionType;
     }
 
-    public void setSubscriptionType(String subscriptionType) {
+    public void setSubscriptionType(final String subscriptionType) {
         this.subscriptionType = subscriptionType;
     }
 
     public Map<String, Integer> getHistory() {
         return history;
-    }
-
-    public void setHistory(Map<String, Integer> history) {
-        this.history = history;
-    }
-
-    public ArrayList<String> getFavoriteMovies() {
-        return favoriteMovies;
-    }
-
-    public void setFavoriteMovies(ArrayList<String> favoriteMovies) {
-        this.favoriteMovies = favoriteMovies;
     }
 
     public Map<String, Double> getRatings() {
@@ -83,32 +73,50 @@ public class User {
         return ratings.size();
     }
 
-    private void addViewsToVideos(Map<String, Video> videos) {
+    /**
+     * adds a view to given videos
+     * @param videos
+     */
+    private void addViewsToVideos(final Map<String, Video> videos) {
         for (Map.Entry<String, Integer> entry : history.entrySet()) {
             videos.get(entry.getKey()).addViews(entry.getValue());
         }
     }
 
-    private void addFavoritesToVideos(Map<String, Video> videos) {
+    /**
+     * increments number of occurrences in user's favorite list of given videos
+     * @param videos
+     */
+    private void addFavoritesToVideos(final Map<String, Video> videos) {
         for (String title : favoriteMovies) {
             videos.get(title).addFavorite();
         }
     }
 
-    public int addFavorite(String videoTitle) {
+    /**
+     * adds the given video to favorite list
+     * @param videoTitle
+     * @return message with action result
+     */
+    public String addFavorite(final String videoTitle) {
         if (favoriteMovies.contains(videoTitle)) {
-            return 0;
+            return "is already in favourite list";
         } else {
             if (history.containsKey(videoTitle)) {
                 favoriteMovies.add(videoTitle);
-                return 1;
+                return "was added as favourite";
             } else {
-                return 2;
+                return "is not seen";
             }
         }
     }
 
-    public int addView(String videoTitle) {
+    /**
+     * adds view to given video
+     * @param videoTitle
+     * @return new number of views of the given video
+     */
+    public int addView(final String videoTitle) {
         if (!history.containsKey(videoTitle)) {
             history.put(videoTitle, 1);
         } else {
@@ -118,19 +126,31 @@ public class User {
         return history.get(videoTitle);
     }
 
-    public int addRating(String videoTitle, double value, int season) {
-        String title  = videoTitle + " " + season;
+    /**
+     * adds a rating to given video
+     * @param videoTitle
+     * @param value
+     * @param season
+     * @return message with action result
+     */
+    public String addRating(final String videoTitle, final double value, final int season) {
+        String title;
+        if (season != 0) {
+            title = videoTitle + season;
+        } else {
+            title = videoTitle;
+        }
 
         if (ratings.containsKey(title)) {
-            return 0;
+            return "has been already rated";
         }
 
         if (history.containsKey(videoTitle)) {
             ratings.put(title, value);
-            return 1;
+            return "was rated";
         }
 
-        return 2;
+        return "is not seen";
     }
 
     @Override

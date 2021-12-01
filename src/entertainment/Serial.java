@@ -3,7 +3,7 @@ package entertainment;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Serial extends Video {
+public final class Serial extends Video {
     /**
      * Number of seasons
      */
@@ -63,7 +63,7 @@ public class Serial extends Video {
     }
 
     @Override
-    public void addRating(double rating, int season) {
+    public void addRating(final double rating, final int season) {
         int indexSeason = season - 1;
         List<Double> ratings = seasons.get(indexSeason).getRatings();
         ratings.add(rating);

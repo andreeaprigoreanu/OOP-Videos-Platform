@@ -2,7 +2,7 @@ package entertainment;
 
 import java.util.ArrayList;
 
-public class Movie extends Video {
+public final class Movie extends Video {
     /**
      * Sum of ratings given by users
      */
@@ -20,7 +20,7 @@ public class Movie extends Video {
     }
 
     @Override
-    public void addRating(double rating, int season) {
+    public void addRating(final double rating, final int season) {
         if (this.rating == 0) {
             this.rating = rating;
             this.sumOfRatings = rating;

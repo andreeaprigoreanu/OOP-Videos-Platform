@@ -20,17 +20,17 @@ public final class Command {
     public static String favorite(final String username, final String videoTitle,
                                   final UsersDatabase usersDatabase,
                                   final VideosDatabase videosDatabase) {
-        int res = usersDatabase.addFavorite(username, videoTitle);
+        String message = usersDatabase.addFavorite(username, videoTitle);
 
-        if (res == 0) {
-            return "error -> " + videoTitle + " is already in favourite list";
+        if (message.equals("is already in favourite list")) {
+            return "error -> " + videoTitle + " " + message;
         } else {
-            if (res == 1) {
-                // add video to videDatabase
+            if (message.equals("was added as favourite")) {
+                // add favorite video to videoDatabase
                 videosDatabase.addFavorite(videoTitle);
-                return "success -> " + videoTitle + " was added as favourite";
+                return "success -> " + videoTitle + " " + message;
             } else {
-                return "error -> " + videoTitle + " is not seen";
+                return "error -> " + videoTitle + " " + message;
             }
         }
     }
@@ -67,18 +67,19 @@ public final class Command {
                                    final double value, final int season,
                                    final UsersDatabase usersDatabase,
                                    final VideosDatabase videosDatabase) {
-        int res = usersDatabase.addRating(username, videoTitle, value, season);
+        String message = usersDatabase.addRating(username, videoTitle, value, season);
 
-        if (res == 0) {
-            return "error -> " + videoTitle + " has been already rated";
+        if (message.equals("has been already rated")) {
+            return "error -> " + videoTitle + " " + message;
         } else {
-            if (res == 1) {
+            if (message.equals("was rated")) {
+                // add rating to video in videosDatabase
                 videosDatabase.addRating(videoTitle, value, season);
 
                 return "success -> " + videoTitle + " was rated with " + value
                         + " by " + username;
             } else {
-                return "error -> " + videoTitle + " is not seen";
+                return "error -> " + videoTitle + " " + message;
             }
         }
     }

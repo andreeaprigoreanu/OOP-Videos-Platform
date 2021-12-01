@@ -1,37 +1,35 @@
 package actor;
 
 import database.VideosDatabase;
-import entertainment.Video;
 import utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Actor {
+public final class Actor {
     /**
      * actor name
      */
-    private String name;
+    private final String name;
     /**
      * description of the actor's career
      */
-    private String careerDescription;
+    private final String careerDescription;
     /**
      * videos starring actor
      */
-    private ArrayList<String> filmography;
+    private final ArrayList<String> filmography;
     /**
      * awards won by the actor
      */
-    private Map<ActorsAwards, Integer> awards;
+    private final Map<ActorsAwards, Integer> awards;
 
-    public Actor(String name, String careerDescription,
-                 ArrayList<String> filmography,
-                 Map<ActorsAwards, Integer> awards) {
+    public Actor(final String name, final String careerDescription,
+                 final ArrayList<String> filmography,
+                 final Map<ActorsAwards, Integer> awards) {
         this.name = name;
         this.careerDescription = careerDescription;
         this.filmography = filmography;
@@ -42,44 +40,31 @@ public class Actor {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getCareerDescription() {
-        return careerDescription;
-    }
-
-    public void setCareerDescription(String careerDescription) {
-        this.careerDescription = careerDescription;
-    }
-
     public ArrayList<String> getFilmography() {
         return filmography;
-    }
-
-    public void setFilmography(ArrayList<String> filmography) {
-        this.filmography = filmography;
     }
 
     public Map<ActorsAwards, Integer> getAwards() {
         return awards;
     }
 
-    public void setAwards(Map<ActorsAwards, Integer> awards) {
-        this.awards = awards;
-    }
-
+    /**
+     * @return number of awards
+     */
     public int getNumAwards() {
         int numAwards = 0;
         for (Map.Entry<ActorsAwards, Integer> entry : awards.entrySet()) {
-            Integer num = entry.getValue();
-            numAwards += num;
+            numAwards += entry.getValue();
         }
 
         return numAwards;
     }
 
+    /**
+     * iterates through the videos list an actor appears in and computes their average rating
+     * @param videosDatabase
+     * @return average rating
+     */
     public double getAverageRating(final VideosDatabase videosDatabase) {
         double sumRatings = 0;
         int numRatings = 0;
@@ -99,11 +84,14 @@ public class Actor {
         }
     }
 
+    /**
+     * checks if an actor won the awards given in a list
+     * @param awardsList
+     * @return true or false
+     */
     public boolean hasAwards(final List<String> awardsList) {
         for (String awardName : awardsList) {
-            ActorsAwards award = Utils.stringToAwards(awardName);
-
-            if (!(awards.containsKey(award))) {
+            if (!(awards.containsKey(Utils.stringToAwards(awardName)))) {
                 return false;
             }
         }
@@ -111,10 +99,16 @@ public class Actor {
         return true;
     }
 
+    /**
+     * checks if some keywords appear in the description of an actor
+     * @param keywords
+     * @return true or false
+     */
     public boolean hasKeywords(final List<String> keywords) {
         for (String keyword : keywords) {
-            String regex = "[ -]" + keyword + "[ -.,!?']";
-            Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+            // the keyword is searched using regex
+            Pattern pattern = Pattern.compile("[ -.,!?']" + keyword + "[ -.,!?']",
+                    Pattern.CASE_INSENSITIVE);
             Matcher matcher = pattern.matcher(careerDescription);
 
             if (!(matcher.find())) {
@@ -129,9 +123,4 @@ public class Actor {
     public String toString() {
         return name;
     }
-
-    public String showActor(VideosDatabase videosDatabase) {
-        return name + " " + this.getAverageRating(videosDatabase);
-    }
-
 }
